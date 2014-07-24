@@ -1,0 +1,28 @@
+{
+  "name": "krusty-jasmine-reporter",
+  "version": "0.0.1",
+  "dependencies": {
+    "pretty-data": {
+      "version": "0.40.0",
+      "from": "https://registry.npmjs.org/pretty-data/-/pretty-data-0.40.0.tgz",
+      "resolved": "https://registry.npmjs.org/pretty-data/-/pretty-data-0.40.0.tgz"
+    },
+    "promise": {
+      "version": "5.0.0",
+      "from": "https://registry.npmjs.org/promise/-/promise-5.0.0.tgz",
+      "resolved": "https://registry.npmjs.org/promise/-/promise-5.0.0.tgz",
+      "dependencies": {
+        "asap": {
+          "version": "1.0.0",
+          "from": "https://registry.npmjs.org/asap/-/asap-1.0.0.tgz",
+          "resolved": "https://registry.npmjs.org/asap/-/asap-1.0.0.tgz"
+        }
+      }
+    },
+    "wiretree": {
+      "version": "0.2.5",
+      "from": "https://registry.npmjs.org/wiretree/-/wiretree-0.2.5.tgz",
+      "resolved": "https://registry.npmjs.org/wiretree/-/wiretree-0.2.5.tgz"
+    }
+  }
+}
