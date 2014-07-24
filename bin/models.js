@@ -55,7 +55,7 @@ exports.wiretree = function krustyJasmineReporterModelsModule(format) {
      * @returns {Number}
      */
     function getSumOfTestCaseTimes(prevTestCase, currentTestCase) {
-      return prevTestCase + Number(currentTestCase.time);
+      return prevTestCase + currentTestCase.time;
     }
   };
 
@@ -74,11 +74,11 @@ exports.wiretree = function krustyJasmineReporterModelsModule(format) {
    */
   TestSuite.prototype.getIssueCount = function getFailureCount(issueType) {
     // default to failed if nothing is passed
-    if (issueType !== ERROR && issueType !== FAILED && issueType !== PENDING) {
+    if (!issueType) {
       issueType = FAILED;
     }
 
-    return this.testCases.reduce(getCount, 0);
+    return this.testCases.filter(statusCountFilter).length;
 
     /**
      * Increments failure count
@@ -86,8 +86,8 @@ exports.wiretree = function krustyJasmineReporterModelsModule(format) {
      * @param {TestCase} currentTestCase
      * @returns {Number}
      */
-    function getCount(prevTestCase, currentTestCase) {
-      return prevTestCase + Number(currentTestCase.status === issueType);
+    function statusCountFilter(currentTestCase) {
+      return currentTestCase.status === issueType;
     }
   };
 
@@ -107,10 +107,10 @@ exports.wiretree = function krustyJasmineReporterModelsModule(format) {
   TestSuite.prototype.getSerialized = function getSerialized() {
     var serializedTestCases = this.testCases.reduce(serializeTestCase, '');
     return format(
-      '<testsuites><testsuite name="%s" package="%s" timestamp="%s" id="%s" hostname="%s" tests="%s" errors="%s" ' +
+        '<testsuites><testsuite name="%s" package="%s" timestamp="%s" id="%s" hostname="%s" tests="%s" errors="%s" ' +
         'failures="%s" ' + 'skipped="%s" time="%s">%s</testsuite></testsuites>',
-        this.name, this.package, this.timeStamp, this.id, this.hostName, this.getTestCount(), this.getIssueCount(ERROR),
-        this.getIssueCount(FAILED), this.getIssueCount(PENDING), this.getTime(), serializedTestCases);
+      this.name, this.package, this.timeStamp, this.id, this.hostName, this.getTestCount(), this.getIssueCount(ERROR),
+      this.getIssueCount(FAILED), this.getIssueCount(PENDING), this.getTime(), serializedTestCases);
 
     /**
      * Used by the reduce function, this will concatenate the previous accumulated string with the current serialized
