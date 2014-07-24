@@ -1,0 +1,31 @@
+{
+  "name": "krusty-jasmine-reporter",
+  "version": "0.0.1",
+  "description": "A reporter used to generate jasmine to JUnit results that can be interpreted by Jenkins",
+  "main": "index.js",
+  "scripts": {
+    "test": "mjnw",
+    "cover": "cover"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krusty-krab/krusty-jasmine-reporter.git"
+  },
+  "keywords": [
+    "jasmine",
+    "junit",
+    "reports"
+  ],
+  "author": "william.c.johnson@intel.com",
+  "license": "MIT",
+  "dependencies": {
+    "minijasminenodewrap": "0.0.5",
+    "pretty-data": "0.40.0",
+    "promise": "5.0.0",
+    "wiretree": "0.2.5"
+  },
+  "bugs": {
+    "url": "https://github.com/krusty-krab/krusty-jasmine-reporter/issues"
+  },
+  "homepage": "https://github.com/krusty-krab/krusty-jasmine-reporter"
+}
