@@ -19,10 +19,12 @@
   "author": "william.c.johnson@intel.com",
   "license": "MIT",
   "dependencies": {
-    "minijasminenodewrap": "0.0.5",
     "pretty-data": "0.40.0",
     "promise": "5.0.0",
     "wiretree": "0.2.5"
+  },
+  "devDependencies": {
+    "minijasminenodewrap": "0.0.5"
   },
   "bugs": {
     "url": "https://github.com/krusty-krab/krusty-jasmine-reporter/issues"

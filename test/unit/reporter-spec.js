@@ -57,7 +57,7 @@ describe('test initializing the Krusty Jasmine Reporter Module', function () {
   });
 
   it('should return an instance of KrustyJasmineJUnitReporter', function () {
-    expect(reporter.KrustyJasmineJUnitReporter.name.toString()).toEqual('KrustyJasmineJUnitReporter');
+    expect(krustyJasmineJUnitReporter instanceof reporter.KrustyJasmineJUnitReporter).toBeTruthy();
   });
 
   describe('test calling jasmineStarted', function () {

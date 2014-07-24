@@ -45,7 +45,7 @@ exports.wiretree = function krustyJasmineReporterModule(models, prettyData, os, 
       var completed = options.done || function () {};
       done = done || function () {};
 
-      console.log('finished in ' + seconds + ' seconds');
+      console.log('finished in ', seconds, ' seconds');
 
       if (options.JUnitReportSavePath && options.JUnitReportFilePrefix) {
         fsWriteThen(options.JUnitReportSavePath + options.JUnitReportFilePrefix + ".xml", report, 'utf8')
@@ -54,7 +54,7 @@ exports.wiretree = function krustyJasmineReporterModule(models, prettyData, os, 
             completed(totalErrors === 0);
           })
           .catch(function (e) {
-            console.log('Error writing Jasmine Reports to ' + options.JUnitReportSavePath +
+            console.log('Error writing Jasmine Reports to ', options.JUnitReportSavePath +
               options.JUnitReportFilePrefix + ".xml", e);
             completed(false);
           }).done(done);
