@@ -99,7 +99,7 @@ describe('test initializing the Krusty Jasmine Reporter Module', function () {
     });
 
     it('should instantiate TestCase', function () {
-      expect(models.TestCase).toHaveBeenCalledWith(result, 2);
+      expect(models.TestCase).toHaveBeenCalledWith(result, 2, options.JUnitReportPackageName);
     });
 
     it('should call testSuite.addTestCase with the test case', function () {
