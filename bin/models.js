@@ -128,10 +128,12 @@ exports.wiretree = function krustyJasmineReporterModelsModule(format) {
    * TestCase is a model that represents the data in a single test case.
    * @param {Object} result
    * @param {Number} time The time it took to run the test. An example would be, "0.800"
+   * @param {String} packageName The package name to be prefixed on the classname
    * @constructor
    */
-  function TestCase(result, time) {
-    this.classname = result.fullName.substr(0, result.fullName.indexOf(result.description) - 1) || result.fullName;
+  function TestCase(result, time, packageName) {
+    this.classname = packageName + "." + (result.fullName.substr(0, result.fullName.indexOf(result.description) - 1) ||
+      result.fullName);
     this.name = result.description;
     this.time = time;
     this.status = result.status;

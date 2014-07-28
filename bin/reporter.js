@@ -78,7 +78,7 @@ exports.wiretree = function krustyJasmineReporterModule(models, prettyData, os, 
      */
     this.specDone = function specDone (result) {
       var seconds = specTimer.elapsed() / 1000;
-      var testCase = new models.TestCase(result, seconds);
+      var testCase = new models.TestCase(result, seconds, options.JUnitReportPackageName);
       testSuite.addTestCase(testCase);
     };
   }

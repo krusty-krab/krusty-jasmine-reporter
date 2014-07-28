@@ -22,7 +22,7 @@ var dataProvider = [
     testCaseTime: 0.008,
     expectedSerializedTestSuite: '<testsuites><testsuite name="test-suite-name" package="package-name" ' +
       'timestamp="2014-07-31" id="0" hostname="localhost" tests="1" errors="0" failures="0" skipped="0" time="0.008">' +
-      '<testcase classname="test-case-full-name" name="test-case-name" time="0.008"> </testcase></testsuite>' +
+      '<testcase classname="package-name.test-case-full-name" name="test-case-name" time="0.008"> </testcase></testsuite>' +
       '</testsuites>'
   },
   {
@@ -46,7 +46,7 @@ var dataProvider = [
     testCaseTime: 0.008,
     expectedSerializedTestSuite: '<testsuites><testsuite name="test-suite-name" package="package-name" ' +
       'timestamp="2014-07-31" id="0" hostname="localhost" tests="1" errors="1" failures="0" skipped="0" ' +
-      'time="0.008"><testcase classname="test-case-full-name" name="test-case-name" time="0.008"> ' +
+      'time="0.008"><testcase classname="package-name.test-case-full-name" name="test-case-name" time="0.008"> ' +
       '<error message="test failure"><![CDATA[backtrace]]></error> </testcase></testsuite></testsuites>'
   },
   {
@@ -70,7 +70,7 @@ var dataProvider = [
     testCaseTime: 0.008,
     expectedSerializedTestSuite: '<testsuites><testsuite name="test-suite-name" package="package-name" ' +
       'timestamp="2014-07-31" id="0" hostname="localhost" tests="1" errors="0" failures="1" skipped="0" time="0.008">' +
-      '<testcase classname="test-case-full-name" name="test-case-name" time="0.008"> <failure message="test failure">' +
+      '<testcase classname="package-name.test-case-full-name" name="test-case-name" time="0.008"> <failure message="test failure">' +
       '<![CDATA[backtrace]]></failure> </testcase></testsuite></testsuites>'
   },
   {
@@ -90,7 +90,7 @@ var dataProvider = [
     testCaseTime: 0.008,
     expectedSerializedTestSuite: '<testsuites><testsuite name="test-suite-name" package="package-name" ' +
       'timestamp="2014-07-31" id="0" hostname="localhost" tests="1" errors="0" failures="0" skipped="1" time="0.008">' +
-      '<testcase classname="test-case-full-name" name="test-case-name" time="0.008"> <skipped></skipped> </testcase>' +
+      '<testcase classname="package-name.test-case-full-name" name="test-case-name" time="0.008"> <skipped></skipped> </testcase>' +
       '</testsuite></testsuites>'
   }
 ];
@@ -146,7 +146,7 @@ function commonSetup(data) {
   testSuite = new models.TestSuite(data.testSuiteData.name, data.testSuiteData.timeStamp,
     data.testSuiteData.hostName, data.testSuiteData.packageName, data.testSuiteData.id);
 
-  testCase = new models.TestCase(data.testCaseResult, data.testCaseTime);
+  testCase = new models.TestCase(data.testCaseResult, data.testCaseTime, data.testSuiteData.packageName);
 
   // Add the test case to the test suite
   testSuite.addTestCase(testCase);
