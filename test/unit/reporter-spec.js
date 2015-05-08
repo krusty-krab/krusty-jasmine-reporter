@@ -1,22 +1,20 @@
 /* jshint node: true */
 'use strict';
 
-var reporterModule = require('../../bin/reporter').wiretree;
-var Promise = require('promise');
+var rewire = require('rewire');
+var reporter = rewire('../../bin/reporter');
 
 describe('test initializing the Krusty Jasmine Reporter Module', function () {
-  var reporter, models, prettyData, os, fsWriteThen, testSuite, testCase, fsWriteThenPromise,
-    krustyJasmineJUnitReporter, options, timer, specTimer, date, stubDate, hostname,
-    testSuiteSerialized;
+  var models, prettyData, os, testSuite, testCase,
+    krustyJasmineJUnitReporter, options, specTimer, hostname,
+    testSuiteSerialized, writeFileSync, revert;
 
   beforeEach(function () {
-    stubDate = '2014-07-31';
     hostname = 'localhost';
     testSuiteSerialized = 'serialized-test-suite';
     testSuite = {
       addTestCase: jasmine.createSpy('addTestCase'),
-      getSerialized: jasmine.createSpy('getSerialized').and.returnValue(testSuiteSerialized),
-      getIssueCount: jasmine.createSpy('getIssueCount').and.returnValue(0)
+      getSerialized: jasmine.createSpy('getSerialized').and.returnValue(testSuiteSerialized)
     };
     testCase = {};
     models = {
@@ -31,51 +29,48 @@ describe('test initializing the Krusty Jasmine Reporter Module', function () {
 
     os = jasmine.createSpyObj('os', ['hostname']);
 
-    fsWriteThenPromise = Promise.resolve();
-    fsWriteThen = jasmine.createSpy('fsWriteThen').and.returnValue(fsWriteThenPromise);
-
-    timer = jasmine.createSpyObj('timer', ['start', 'elapsed']);
     specTimer = jasmine.createSpyObj('specTimer', ['start', 'elapsed']);
 
-    date = jasmine.createSpyObj('date', ['toISOString']);
-
-    reporter = reporterModule(models, prettyData, os, fsWriteThen, timer, specTimer, date);
-
     options = {
-      done: jasmine.createSpy('done'),
+      specTimer: specTimer,
       JUnitReportSuiteName: 'Suite Name',
       JUnitReportPackageName: 'Package Name',
       JUnitReportSavePath: './',
       JUnitReportFilePrefix: 'results'
     };
 
-    date.toISOString.and.returnValue(stubDate);
     os.hostname.and.returnValue(hostname);
+
+    writeFileSync = jasmine.createSpy('writeFileSync');
+
+    revert = reporter.__set__({
+      os: os,
+      models: models,
+      prettyData: prettyData,
+      fs: {
+        writeFileSync: writeFileSync
+      },
+      console: {
+        log: function () {}
+      }
+    });
 
     krustyJasmineJUnitReporter = new reporter.KrustyJasmineJUnitReporter(options);
     krustyJasmineJUnitReporter.jasmineStarted({});
   });
 
-  it('should return an instance of KrustyJasmineJUnitReporter', function () {
-    expect(krustyJasmineJUnitReporter instanceof reporter.KrustyJasmineJUnitReporter).toBeTruthy();
+  afterEach(function () {
+    revert();
   });
 
   describe('test calling jasmineStarted', function () {
     it('should instantiate models.TestSuite with appropriate data', function () {
-      expect(models.TestSuite).toHaveBeenCalledWith(options.JUnitReportSuiteName, stubDate, hostname,
+      expect(models.TestSuite).toHaveBeenCalledWith(options.JUnitReportSuiteName, jasmine.any(String), hostname,
         options.JUnitReportPackageName, 0);
-    });
-
-    it('should call date.toISOString', function () {
-      expect(date.toISOString).toHaveBeenCalled();
     });
 
     it('should call os.hostname', function () {
       expect(os.hostname).toHaveBeenCalled();
-    });
-
-    it('should call timer.start', function () {
-      expect(timer.start).toHaveBeenCalled();
     });
   });
 
@@ -108,137 +103,62 @@ describe('test initializing the Krusty Jasmine Reporter Module', function () {
   });
 
   describe('test calling jasmineDone and writing to output file without errors', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       initializeJasmineDoneMocks();
-      krustyJasmineJUnitReporter.jasmineDone(done);
+      krustyJasmineJUnitReporter.jasmineDone();
     });
 
     it('should call prettyData.xml', function () {
       expect(prettyData.xml).toHaveBeenCalledWith(testSuiteSerialized);
     });
 
-    it('should call getIssueCount with failed', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.FAILED);
-    });
-
-    it('should call getIssueCount with error', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.ERROR);
-    });
-
-    it('should call getIssueCount with pending', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.PENDING);
-    });
-
-    it('should call fsWriteThen with appropriate values', function () {
-      expect(fsWriteThen).toHaveBeenCalledWith(options.JUnitReportSavePath + options.JUnitReportFilePrefix + ".xml",
-        testSuiteSerialized, 'utf8');
-    });
-
-    it('should call done with 0 errors', function () {
-      expect(options.done).toHaveBeenCalledWith(true);
+    it('should call writeFileSync with appropriate values', function () {
+      expect(writeFileSync).toHaveBeenCalledWith(options.JUnitReportSavePath + options.JUnitReportFilePrefix + ".xml",
+        testSuiteSerialized);
     });
   });
 
   describe('test calling jasmineDone and writing to output file with errors', function () {
-    beforeEach(function (done) {
-      testSuite.getIssueCount.and.callFake(function (issueType) {
-        return (issueType === models.FAILED) ? 1 : 0;
-      });
-
+    beforeEach(function () {
       initializeJasmineDoneMocks();
-      krustyJasmineJUnitReporter.jasmineDone(done);
-    });
-
-    it('should call done with errors', function () {
-      expect(options.done).toHaveBeenCalledWith(false);
+      krustyJasmineJUnitReporter.jasmineDone();
     });
   });
 
   describe('test calling jasmineDone and catching an error while writing', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       initializeJasmineDoneMocks();
-      fsWriteThenPromise = Promise.reject();
-      fsWriteThen.and.returnValue(fsWriteThenPromise);
-
-      krustyJasmineJUnitReporter.jasmineDone(done);
+      krustyJasmineJUnitReporter.jasmineDone();
     });
 
     it('should call prettyData.xml', function () {
       expect(prettyData.xml).toHaveBeenCalledWith(testSuiteSerialized);
     });
 
-    it('should call getIssueCount with failed', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.FAILED);
-    });
-
-    it('should call getIssueCount with error', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.ERROR);
-    });
-
-    it('should call getIssueCount with pending', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.PENDING);
-    });
-
-    it('should call fsWriteThen with appropriate values', function () {
-      expect(fsWriteThen).toHaveBeenCalledWith(options.JUnitReportSavePath + options.JUnitReportFilePrefix + ".xml",
-        testSuiteSerialized, 'utf8');
-    });
-
-    it('should call done with 0 errors', function () {
-      expect(options.done).toHaveBeenCalledWith(false);
+    it('should call writeFileSync with appropriate values', function () {
+      expect(writeFileSync).toHaveBeenCalledWith(options.JUnitReportSavePath + options.JUnitReportFilePrefix + ".xml",
+        testSuiteSerialized);
     });
   });
 
   describe('test jasmineDone if the save path or file prefix have not been defined', function () {
-    beforeEach(function (done) {
-      initializeJasmineDoneMocks();
-      delete options.JUnitReportSavePath;
-
-      krustyJasmineJUnitReporter.jasmineDone(done);
-    });
-
-    it('should call prettyData.xml', function () {
-      expect(prettyData.xml).toHaveBeenCalledWith(testSuiteSerialized);
-    });
-
-    it('should call getIssueCount with failed', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.FAILED);
-    });
-
-    it('should call getIssueCount with error', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.ERROR);
-    });
-
-    it('should call getIssueCount with pending', function () {
-      expect(testSuite.getIssueCount).toHaveBeenCalledWith(models.PENDING);
-    });
-
-    it('should NOT call fsWriteThen', function () {
-      expect(fsWriteThen).not.toHaveBeenCalled();
-    });
-
-    it('should call done with 0 errors', function () {
-      expect(options.done).toHaveBeenCalledWith(true);
-    });
-  });
-
-  describe('test calling jasmineDone without a done function in options', function () {
     beforeEach(function () {
       initializeJasmineDoneMocks();
-      delete options.done;
-      delete options.JUnitReportFilePrefix;
+      delete options.JUnitReportSavePath;
 
       krustyJasmineJUnitReporter.jasmineDone();
     });
 
-    it('should complete without the done function', function () {
-      expect(options.done).toBeUndefined();
+    it('should not call prettyData.xml', function () {
+      expect(prettyData.xml).not.toHaveBeenCalled();
     });
 
+    it('should NOT call writeFileSync', function () {
+      expect(writeFileSync).not.toHaveBeenCalled();
+    });
   });
 
   function initializeJasmineDoneMocks() {
-    timer.elapsed.and.returnValue(2000);
     prettyData.xml.and.returnValue(testSuiteSerialized);
   }
 });

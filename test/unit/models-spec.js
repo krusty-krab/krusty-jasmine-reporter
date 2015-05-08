@@ -1,8 +1,7 @@
 /* jshint node: true */
 'use strict';
 
-var modelsModule = require('../../bin/models').wiretree;
-var format = require('util').format;
+var models = require('../../bin/models');
 
 var dataProvider = [
   {
@@ -123,11 +122,10 @@ describe('testing getIssueType without parameter', function () {
 });
 
 describe('test adding an object to the TestSuite instead of a TestCase', function () {
-  var models, testSuite;
+  var testSuite;
   var data = dataProvider[0];
 
   beforeEach(function () {
-    models = modelsModule(format);
     testSuite = new models.TestSuite(data.testSuiteData.name, data.testSuiteData.timeStamp,
       data.testSuiteData.hostName, data.testSuiteData.packageName, data.testSuiteData.id);
     testSuite.addTestCase(data.testCaseResult);
@@ -139,9 +137,7 @@ describe('test adding an object to the TestSuite instead of a TestCase', functio
 });
 
 function commonSetup(data) {
-  var models, testSuite, testCase, actualSerializedTestSuite;
-
-  models = modelsModule(format);
+  var testSuite, testCase, actualSerializedTestSuite;
 
   testSuite = new models.TestSuite(data.testSuiteData.name, data.testSuiteData.timeStamp,
     data.testSuiteData.hostName, data.testSuiteData.packageName, data.testSuiteData.id);
